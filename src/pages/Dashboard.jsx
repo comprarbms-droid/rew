@@ -10,7 +10,10 @@ import {
   AlertCircle,
   LayoutDashboard,
   ArrowRight,
-  ExternalLink
+  ExternalLink,
+  ShoppingCart,
+  DollarSign,
+  Package
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { createPageUrl } from '@/lib/utils'
@@ -28,6 +31,16 @@ export default function Dashboard() {
   const { data: emails = [], isLoading } = useQuery({
     queryKey: ['emails'],
     queryFn: () => api.getEmails()
+  })
+
+  const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
+    queryKey: ['orders', 'pending'],
+    queryFn: () => api.getOrders({ status: 'pending', limit: 10 })
+  })
+
+  const { data: paidOrders = [] } = useQuery({
+    queryKey: ['orders', 'paid'],
+    queryFn: () => api.getOrders({ status: 'paid', limit: 5 })
   })
 
   // Calculate stats
@@ -193,11 +206,125 @@ export default function Dashboard() {
         />
       </div>
 
+      {/* Orders Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Orders - Pending */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white rounded-xl border border-slate-200 p-6"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5 text-amber-600" />
+              <h2 className="text-lg font-semibold text-slate-900">Pedidos Pendentes</h2>
+            </div>
+            <span className="text-sm text-slate-500 bg-amber-50 px-3 py-1 rounded-full">
+              {orders.length}
+            </span>
+          </div>
+          {isLoadingOrders ? (
+            <div className="text-center py-8 text-slate-400">Carregando...</div>
+          ) : orders.length === 0 ? (
+            <div className="text-center py-8 text-slate-400">Nenhum pedido pendente</div>
+          ) : (
+            <div className="space-y-3">
+              {orders.slice(0, 5).map((order) => (
+                <div
+                  key={order.id || order.order_id}
+                  className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Package className="w-4 h-4 text-slate-400" />
+                      <span className="text-sm font-medium text-slate-900">
+                        Pedido #{order.id || order.order_id}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-500 ml-6">
+                      {order.customer_name || order.customer?.name || 'Cliente'} • 
+                      {order.created_date && ` ${format(new Date(order.created_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}`}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-slate-900">
+                      {order.value || order.order_value ? 
+                        `R$ ${parseFloat(order.value || order.order_value).toFixed(2).replace('.', ',')}` : 
+                        'N/A'
+                      }
+                    </div>
+                    <StatusBadge status="pending" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+
+        {/* Recent Orders - Paid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="bg-white rounded-xl border border-slate-200 p-6"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-emerald-600" />
+              <h2 className="text-lg font-semibold text-slate-900">Pedidos Pagos</h2>
+            </div>
+            <span className="text-sm text-slate-500 bg-emerald-50 px-3 py-1 rounded-full">
+              {paidOrders.length}
+            </span>
+          </div>
+          {isLoadingOrders ? (
+            <div className="text-center py-8 text-slate-400">Carregando...</div>
+          ) : paidOrders.length === 0 ? (
+            <div className="text-center py-8 text-slate-400">Nenhum pedido pago recente</div>
+          ) : (
+            <div className="space-y-3">
+              {paidOrders.slice(0, 5).map((order) => (
+                <div
+                  key={order.id || order.order_id}
+                  className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Package className="w-4 h-4 text-slate-400" />
+                      <span className="text-sm font-medium text-slate-900">
+                        Pedido #{order.id || order.order_id}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-500 ml-6">
+                      {order.customer_name || order.customer?.name || 'Cliente'} • 
+                      {order.paid_date || order.created_date ? 
+                        ` ${format(new Date(order.paid_date || order.created_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}` : 
+                        ''
+                      }
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-emerald-600">
+                      {order.value || order.order_value ? 
+                        `R$ ${parseFloat(order.value || order.order_value).toFixed(2).replace('.', ',')}` : 
+                        'N/A'
+                      }
+                    </div>
+                    <StatusBadge status="paid" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </div>
+
       {/* Recent Emails Table */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
+        transition={{ delay: 0.6 }}
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-900">Últimos E-mails Enviados</h2>

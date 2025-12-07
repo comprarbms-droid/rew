@@ -48,6 +48,16 @@ const statusConfig = {
     icon: XCircle,
     variant: 'error',
   },
+  pending: {
+    label: 'Pendente',
+    icon: AlertCircle,
+    variant: 'warning',
+  },
+  paid: {
+    label: 'Pago',
+    icon: CheckCircle2,
+    variant: 'success',
+  },
 }
 
 export default function StatusBadge({ status }) {

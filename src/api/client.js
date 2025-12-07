@@ -39,7 +39,7 @@ class ApiClient {
   // Emails
   async getEmails(filters = {}) {
     const params = new URLSearchParams(filters)
-    return this.request(`/emails?${params}`)
+    return this.request(`/emails.php?${params}`)
   }
 
   async getEmail(id) {
@@ -52,7 +52,7 @@ class ApiClient {
 
   // Templates
   async getTemplates() {
-    return this.request('/templates')
+    return this.request('/templates.php')
   }
 
   async getTemplate(id) {
@@ -149,6 +149,29 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ phone, message }),
     })
+  }
+
+  // Orders
+  async getOrders(filters = {}) {
+    const params = new URLSearchParams(filters)
+    return this.request(`/orders.php?${params}`)
+  }
+
+  // Remarketing actions
+  async getRemarketingOrder(id) {
+    return this.request(`/remarketing.php?action=order&id=${id}`)
+  }
+
+  async testRemarketingOrder(id) {
+    return this.request(`/remarketing.php?action=test&id=${id}`)
+  }
+
+  async sendRemarketingOrder(id, type = 'created') {
+    return this.request(`/remarketing.php?action=send&id=${id}&type=${type}`)
+  }
+
+  async listRemarketingOrders(status = 'pending') {
+    return this.request(`/remarketing.php?action=list&status=${status}`)
   }
 
   // Logs

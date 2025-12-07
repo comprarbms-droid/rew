@@ -211,3 +211,4 @@ function logEvent($eventType, $data, $response) {
     file_put_contents($file, json_encode($logs, JSON_PRETTY_PRINT));
 }
 
+

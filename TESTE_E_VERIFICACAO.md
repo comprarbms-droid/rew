@@ -198,3 +198,4 @@ O arquivo `src/api/client.js` já está configurado para usar a variável de amb
 O sistema está configurado e pronto para uso. Faça um teste e verifique se tudo está funcionando!
 
 
+
